@@ -11,8 +11,10 @@
 ## MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 ## GNU General Public License for more details.
 
-
+import concurrent.futures
 from timeit import default_timer
+
+MAX_CONCURRENT_THREADS = 5
 
 
 class CollectorHandler:
@@ -22,17 +24,28 @@ class CollectorHandler:
         self.entries_handler = entries_handler
         self.collector_registry = collector_registry
 
+
+    def _collect_single_router(self, router_entry):
+        if not router_entry.api_connection.is_connected():
+            # let's pick up on things in the next run
+            router_entry.api_connection.connect()
+
+        for collector_ID, collect_func in self.collector_registry.registered_collectors.items():                
+            start = default_timer()
+            yield from list(collect_func(router_entry))
+            router_entry.time_spent[collector_ID] += default_timer() - start
+
+
     def collect(self):
         yield from self.collector_registry.bandwidthCollector.collect()
 
-        for router_entry in self.entries_handler.router_entries:
-            if not router_entry.api_connection.is_connected():
-                # let's pick up on things in the next run
-                router_entry.api_connection.connect()
-                continue
+        with concurrent.futures.ThreadPoolExecutor(max_workers=MAX_CONCURRENT_THREADS) as executor:
+            futures = set()
+            for router_entry in self.entries_handler.router_entries:
+                future = executor.submit(self._collect_single_router, router_entry)
+                futures.add(future)
 
-            for collector_ID, collect_func in self.collector_registry.registered_collectors.items():                
-                start = default_timer()
-                yield from collect_func(router_entry)
-                router_entry.time_spent[collector_ID] += default_timer() - start
+            for future in concurrent.futures.as_completed(futures):
+                result = future.result()
+                yield from result
 
