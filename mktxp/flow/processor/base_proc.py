@@ -26,6 +26,11 @@ from mktxp.cli.output.capsman_out import CapsmanOutput
 from mktxp.cli.output.wifi_out import WirelessOutput
 from mktxp.cli.output.dhcp_out import DHCPOutput
 
+class QueuedHTTPServer(HTTPServer):
+    """Synchronous HTTPServer implementation with a request queue.
+    If the server receives any connection while the request queue is
+    full, the connection is simply refused"""
+    request_queue_size = config_handler.system_entry().request_queue_size
 
 class ExportProcessor:
     ''' Base Export Processing
@@ -36,7 +41,7 @@ class ExportProcessor:
         ExportProcessor.run(port=config_handler.system_entry().port)
 
     @staticmethod
-    def run(server_class=HTTPServer, handler_class=MetricsHandler, port=None):
+    def run(server_class=QueuedHTTPServer, handler_class=MetricsHandler, port=None):
         server_address = ('', port)
         httpd = server_class(server_address, handler_class)
         current_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")

@@ -52,7 +52,7 @@ class MKTXPConfigKeys:
     FE_NETWATCH_KEY = 'netwatch'
 
     MKTXP_SOCKET_TIMEOUT = 'socket_timeout'    
-    MKTXP_SOCKET_TIMEOUT = 'socket_timeout'   
+    MKTXP_REQUEST_QUEUE_SIZE = 'request_queue_size'   
     MKTXP_INITIAL_DELAY = 'initial_delay_on_failure'
     MKTXP_MAX_DELAY = 'max_delay_on_failure'
     MKTXP_INC_DIV = 'delay_inc_div'
@@ -74,6 +74,7 @@ class MKTXPConfigKeys:
     DEFAULT_API_SSL_PORT = 8729
     DEFAULT_MKTXP_PORT = 49090
     DEFAULT_MKTXP_SOCKET_TIMEOUT = 2
+    DEFAULT_MKTXP_REQUEST_QUEUE_SIZE = 1
     DEFAULT_MKTXP_INITIAL_DELAY = 120
     DEFAULT_MKTXP_MAX_DELAY = 900
     DEFAULT_MKTXP_INC_DIV = 5
@@ -89,7 +90,7 @@ class MKTXPConfigKeys:
     SYSTEM_BOOLEAN_KEYS_YES = (MKTXP_BANDWIDTH_KEY,)
 
     STR_KEYS = (HOST_KEY, USER_KEY, PASSWD_KEY)
-    MKTXP_INT_KEYS = (PORT_KEY, MKTXP_SOCKET_TIMEOUT, MKTXP_INITIAL_DELAY, MKTXP_MAX_DELAY, MKTXP_INC_DIV, MKTXP_BANDWIDTH_TEST_INTERVAL)
+    MKTXP_INT_KEYS = (PORT_KEY, MKTXP_SOCKET_TIMEOUT, MKTXP_REQUEST_QUEUE_SIZE, MKTXP_INITIAL_DELAY, MKTXP_MAX_DELAY, MKTXP_INC_DIV, MKTXP_BANDWIDTH_TEST_INTERVAL)
 
     # MKTXP config entry nane
     MKTXP_CONFIG_ENTRY_NAME = 'MKTXP'
@@ -105,8 +106,9 @@ class ConfigEntry:
                                                  MKTXPConfigKeys.FE_CAPSMAN_KEY, MKTXPConfigKeys.FE_CAPSMAN_CLIENTS_KEY, MKTXPConfigKeys.FE_POE_KEY, MKTXPConfigKeys.FE_NETWATCH_KEY, MKTXPConfigKeys.MKTXP_USE_COMMENTS_OVER_NAMES
                                                  ])
     MKTXPSystemEntry = namedtuple('MKTXPSystemEntry', [MKTXPConfigKeys.PORT_KEY, MKTXPConfigKeys.MKTXP_SOCKET_TIMEOUT,
-                                                  MKTXPConfigKeys.MKTXP_INITIAL_DELAY, MKTXPConfigKeys.MKTXP_MAX_DELAY,
-                                                  MKTXPConfigKeys.MKTXP_INC_DIV, MKTXPConfigKeys.MKTXP_BANDWIDTH_KEY, MKTXPConfigKeys.MKTXP_BANDWIDTH_TEST_INTERVAL])
+                                                  MKTXPConfigKeys.MKTXP_REQUEST_QUEUE_SIZE, MKTXPConfigKeys.MKTXP_INITIAL_DELAY,
+                                                  MKTXPConfigKeys.MKTXP_MAX_DELAY, MKTXPConfigKeys.MKTXP_INC_DIV,
+                                                  MKTXPConfigKeys.MKTXP_BANDWIDTH_KEY, MKTXPConfigKeys.MKTXP_BANDWIDTH_TEST_INTERVAL])
 
 
 class OSConfig(metaclass = ABCMeta):
@@ -262,6 +264,7 @@ class MKTXPConfigHandler:
                 MKTXPConfigKeys.SSL_KEY: lambda value: MKTXPConfigKeys.DEFAULT_API_SSL_PORT if value else MKTXPConfigKeys.DEFAULT_API_PORT,
                 MKTXPConfigKeys.PORT_KEY: lambda value: MKTXPConfigKeys.DEFAULT_MKTXP_PORT,
                 MKTXPConfigKeys.MKTXP_SOCKET_TIMEOUT: lambda value: MKTXPConfigKeys.DEFAULT_MKTXP_SOCKET_TIMEOUT,
+                MKTXPConfigKeys.MKTXP_REQUEST_QUEUE_SIZE: lambda value: MKTXPConfigKeys.DEFAULT_MKTXP_REQUEST_QUEUE_SIZE,
                 MKTXPConfigKeys.MKTXP_INITIAL_DELAY: lambda value: MKTXPConfigKeys.DEFAULT_MKTXP_INITIAL_DELAY,
                 MKTXPConfigKeys.MKTXP_MAX_DELAY: lambda value: MKTXPConfigKeys.DEFAULT_MKTXP_MAX_DELAY,
                 MKTXPConfigKeys.MKTXP_INC_DIV: lambda value: MKTXPConfigKeys.DEFAULT_MKTXP_INC_DIV,
